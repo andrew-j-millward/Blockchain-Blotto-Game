@@ -12,16 +12,38 @@ def payoff(network_vector, attack_vector, payout_vector):
 	return (dot(network_vector, payout_vector),0)
 
 ############################################
+##         Maximize Network Profit        ##
+############################################
+def greedy_heuristic():
+	pass
+
+############################################
+##         Optimize Attack Vector         ##
+############################################
+def attacker_heuristic(attack_vector, network_vector):
+	min_i = -1
+	min_dif = -1
+	for i in range(len(network_vector)):
+		if (min_dif == -1 or min_dif < network_vector[i]):
+			min_dif = network_vector[i]
+			min_i = i
+	hash_power_attacker = sum(attack_vector)
+	attack_vector = [0 for i in range(number_coins)]
+	attack_vector[min_i] = hash_power_attacker
+	return attack_vector
+
+############################################
 ##       Blotto Simulator Function        ##
 ############################################
 def simulate(number_coins, hash_power_network, hash_power_attacker):
 	network_vector = [1/number_coins for i in range(number_coins)]
 	network_hash = [hash_power_network*network_vector[i] for i in range(number_coins)]
 	attack_vector = [0 for i in range(number_coins)]
-	attack_vector[0] = 0.01
-	difficulty_vector = [random.randrange(0,100)/100 for i in range(number_coins)]
+	attack_vector[0] = hash_power_attacker
+	payout_vector = [random.randrange(0,100)/100 for i in range(number_coins)]
 	print(network_vector, network_hash)
-	print(payoff(network_vector, attack_vector, difficulty_vector))
+	print(payoff(network_vector, attack_vector, payout_vector))
+	print(attacker_heuristic(attack_vector, network_vector))
 
 ############################################
 ##             Input Parsing              ##
