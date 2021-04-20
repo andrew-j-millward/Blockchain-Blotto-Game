@@ -9,13 +9,17 @@ def payoff(network_vector, attack_vector, payout_vector):
 		if attack_vector[i] > network_vector[i]:
 			return (-100, 100)
 	print(network_vector, payout_vector)
-	return (dot(network_vector, payout_vector),0)
+	return (dot(network_vector, payout_vector), 0)
 
 ############################################
 ##         Maximize Network Profit        ##
 ############################################
-def greedy_heuristic():
-	pass
+def greedy_heuristic(network_vector, attack_vector, payout_vector):
+	adj_payout_vector = [sum(payout_vector)/len(payout_vector) for i in range(len(payout_vector))]
+	adj_network_vector = [network_vector[i]/(payout_vector[i]/adj_payout_vector[i]) for i in range(len(network_vector))]
+	size_adj = sum(network_vector)/sum(adj_network_vector)
+	adj_network_vector = [adj_network_vector[i]*size_adj for i in range(len(adj_network_vector))]
+	return (adj_network_vector, adj_payout_vector)
 
 ############################################
 ##         Optimize Attack Vector         ##
@@ -44,6 +48,7 @@ def simulate(number_coins, hash_power_network, hash_power_attacker):
 	print(network_vector, network_hash)
 	print(payoff(network_vector, attack_vector, payout_vector))
 	print(attacker_heuristic(attack_vector, network_vector))
+	print(greedy_heuristic(network_hash, attack_vector, payout_vector))
 
 ############################################
 ##             Input Parsing              ##
