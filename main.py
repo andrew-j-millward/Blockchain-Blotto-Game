@@ -2,6 +2,16 @@ import sys, random
 from numpy import dot
 
 ############################################
+##   FP Typecasting - Input Validation    ##
+############################################
+def isFloat(string):
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False
+
+############################################
 ##    Compute Payoffs for Each Player     ##
 ############################################
 def payoff(network_vector, attack_vector, payout_vector):
@@ -44,11 +54,13 @@ def simulate(number_coins, hash_power_network, hash_power_attacker):
 	network_hash = [hash_power_network*network_vector[i] for i in range(number_coins)]
 	attack_vector = [0 for i in range(number_coins)]
 	attack_vector[0] = hash_power_attacker
-	payout_vector = [random.randrange(0,100)/100 for i in range(number_coins)]
+	payout_vector = [random.randrange(1,100)/100 for i in range(number_coins)]
 	print(network_vector, network_hash)
-	print(payoff(network_vector, attack_vector, payout_vector))
+	print(payoff(network_hash, attack_vector, payout_vector))
 	print(attacker_heuristic(attack_vector, network_vector))
 	print(greedy_heuristic(network_hash, attack_vector, payout_vector))
+	x, y = greedy_heuristic(network_hash, attack_vector, payout_vector)
+	print(payoff(x, attack_vector, y))
 
 ############################################
 ##             Input Parsing              ##
@@ -61,10 +73,10 @@ if __name__ == "__main__":
 	if len(args) == 4 or len(args) == 5:
 		
 		# Valid input
-		if args[-1].isnumeric() and args[-2].isnumeric() and args[-3].isnumeric():
+		if (args[-1].isnumeric() and args[-2].isnumeric() and args[-3].isnumeric()) or (isFloat(args[-1]) and isFloat(args[-2]) and isFloat(args[-3])):
 			number_coins = int(args[-3])
-			hash_power_network = int(args[-2])
-			hash_power_attacker = int(args[-1])
+			hash_power_network = float(args[-2])
+			hash_power_attacker = float(args[-1])
 
 			# Run the simulation on the given parameters...
 			simulate(number_coins, hash_power_network, hash_power_attacker)
