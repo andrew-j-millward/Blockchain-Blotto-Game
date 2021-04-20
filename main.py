@@ -1,5 +1,23 @@
-import sys, random
+import sys, random, pylab
+import matplotlib.pyplot as plt
 from numpy import dot
+##pylab.xlabel ('Time')
+##pylab.plot (timeData, moleculesA)
+#fig1 = figure()
+#ax = fig1.add_subplot(111)
+#ax.grid(True)
+#ax.set_title("Whatever Model")
+##xlabel('time')
+##ylabel('Concentrations')
+##ax.legend(loc='lower right')
+##show()
+#ax.plot(t, Ns)
+##plot(t, np.sin(0.3*y))
+#xlabel('time', fontsize=14)
+#ylabel('population', fontsize=14)
+#savefig("Population",fmt="png",bbox_inches='tight', pad_inches=0.03,dpi=300)
+#plt.show()
+
 
 ############################################
 ##   FP Typecasting - Input Validation    ##
@@ -19,7 +37,7 @@ def payoff(network_vector, attack_vector, payout_vector):
 		if attack_vector[i] > network_vector[i]:
 			return (-100, 100)
 	print(network_vector, attack_vector, payout_vector)
-	return (dot(network_vector, payout_vector), 0)
+	return (dot(network_vector, payout_vector), dot(attack_vector, payout_vector))
 
 ############################################
 ##         Maximize Network Profit        ##
