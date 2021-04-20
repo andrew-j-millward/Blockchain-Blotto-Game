@@ -18,7 +18,7 @@ def payoff(network_vector, attack_vector, payout_vector):
 	for i in range(len(network_vector)):
 		if attack_vector[i] > network_vector[i]:
 			return (-100, 100)
-	print(network_vector, payout_vector)
+	print(network_vector, attack_vector, payout_vector)
 	return (dot(network_vector, payout_vector), 0)
 
 ############################################
@@ -34,33 +34,61 @@ def greedy_heuristic(network_vector, attack_vector, payout_vector):
 ############################################
 ##         Optimize Attack Vector         ##
 ############################################
-def attacker_heuristic(attack_vector, network_vector):
+def attacker_heuristic(attack_vector, network_vector, payout_vector):
+	old_i = -1
+	for i in range(len(attack_vector)):
+		if attack_vector[i] != 0:
+			old_i = i
+
 	min_i = -1
 	min_dif = -1
 	for i in range(len(network_vector)):
-		if (min_dif == -1 or min_dif < network_vector[i]):
+		if (min_dif == -1 or min_dif > network_vector[i]):
 			min_dif = network_vector[i]
 			min_i = i
+
+	print(old_i, min_i)
+
 	hash_power_attacker = sum(attack_vector)
-	attack_vector = [0 for i in range(number_coins)]
-	attack_vector[min_i] = hash_power_attacker
-	return attack_vector
+	adj_attack_vector = [0 for i in range(number_coins)]
+	adj_attack_vector[min_i] = hash_power_attacker
+
+	# Shifting attacker focus artificially changes difficulty...
+	adj_payout_vector = payout_vector
+	adj_amt = payout_vector[old_i]/(network_vector[old_i]/(network_vector[old_i]+hash_power_attacker))-payout_vector[old_i]
+	adj_payout_vector[old_i] += adj_amt
+	adj_payout_vector[min_i] -= adj_amt
+	if adj_payout_vector[min_i] < 1e-8:
+		adj_payout_vector[old_i] += adj_payout_vector[min_i]-1e-8
+		adj_payout_vector[min_i] = 1e-8
+	return (adj_attack_vector, adj_payout_vector)
 
 ############################################
 ##       Blotto Simulator Function        ##
 ############################################
 def simulate(number_coins, hash_power_network, hash_power_attacker):
+
+	# Within this game, each player will take turns playing. The network will
+	# make the first move, followed by the attacker. After each round, the
+	# payout will be determined. The game will go for 5 iterations or until
+	# the attacker gains a majority in any coin.
+
+	# Initialize vectors
 	network_vector = [1/number_coins for i in range(number_coins)]
-	network_hash = [hash_power_network*network_vector[i] for i in range(number_coins)]
+	network_vector = [hash_power_network*network_vector[i] for i in range(number_coins)]
 	attack_vector = [0 for i in range(number_coins)]
-	attack_vector[0] = hash_power_attacker
+	attack_vector[1] = hash_power_attacker
 	payout_vector = [random.randrange(1,100)/100 for i in range(number_coins)]
-	print(network_vector, network_hash)
-	print(payoff(network_hash, attack_vector, payout_vector))
-	print(attacker_heuristic(attack_vector, network_vector))
-	print(greedy_heuristic(network_hash, attack_vector, payout_vector))
-	x, y = greedy_heuristic(network_hash, attack_vector, payout_vector)
-	print(payoff(x, attack_vector, y))
+	if (payoff(network_vector, attack_vector, payout_vector) == (-100,100)):
+		return 0
+
+	for i in range(1,5):
+		network_vector, payout_vector = greedy_heuristic(network_vector, attack_vector, payout_vector)
+		attack_vector, payout_vector = attacker_heuristic(attack_vector, network_vector, payout_vector)
+		pay_tuple = payoff(network_vector, attack_vector, payout_vector)
+		print(pay_tuple)
+		if (payoff(network_vector, attack_vector, payout_vector) == (-100,100)):
+			return i, network_vector, attack_vector
 
 ############################################
 ##             Input Parsing              ##
@@ -79,7 +107,7 @@ if __name__ == "__main__":
 			hash_power_attacker = float(args[-1])
 
 			# Run the simulation on the given parameters...
-			simulate(number_coins, hash_power_network, hash_power_attacker)
+			print(simulate(number_coins, hash_power_network, hash_power_attacker))
 
 		# Invalid input
 		else:
