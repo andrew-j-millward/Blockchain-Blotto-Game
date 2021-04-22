@@ -30,6 +30,14 @@ def isFloat(string):
         return False
 
 ############################################
+##           Varience Function            ##
+############################################
+def marketAdjust(payout_vector):
+	bias = 70 # Averaged rate of market return over longer time
+	random_adj_vector = [(1+((random.randrange(0,1000)+bias-500)/1000000))*payout_vector[i] for i in range(len(payout_vector))]
+	return random_adj_vector
+
+############################################
 ##    Compute Payoffs for Each Player     ##
 ############################################
 def payoff(network_vector, attack_vector, payout_vector):
@@ -107,6 +115,7 @@ def simulate(number_coins, hash_power_network, hash_power_attacker):
 		print(pay_tuple)
 		if (payoff(network_vector, attack_vector, payout_vector) == (-100,100)):
 			return i, network_vector, attack_vector
+		payout_vector = marketAdjust(payout_vector)
 
 ############################################
 ##             Input Parsing              ##
