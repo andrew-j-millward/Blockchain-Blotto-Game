@@ -92,7 +92,7 @@ def attacker_heuristic(attack_vector, network_vector, payout_vector):
 ############################################
 ##       Blotto Simulator Function        ##
 ############################################
-def simulate(number_coins, hash_power_network, hash_power_attacker):
+def simulate(number_coins, hash_power_network, hash_power_attacker, max_iter):
 
 	# Within this game, each player will take turns playing. The network will
 	# make the first move, followed by the attacker. After each round, the
@@ -106,16 +106,18 @@ def simulate(number_coins, hash_power_network, hash_power_attacker):
 	attack_vector[1] = hash_power_attacker
 	payout_vector = [random.randrange(1,100)/100 for i in range(number_coins)]
 	if (payoff(network_vector, attack_vector, payout_vector) == (-100,100)):
-		return 0
+		return 0, network_vector, attack_vector, payout_vector
 
-	for i in range(1,5):
+	for i in range(0,max_iter):
 		network_vector, payout_vector = greedy_heuristic(network_vector, attack_vector, payout_vector)
 		attack_vector, payout_vector = attacker_heuristic(attack_vector, network_vector, payout_vector)
 		pay_tuple = payoff(network_vector, attack_vector, payout_vector)
 		print(pay_tuple)
 		if (payoff(network_vector, attack_vector, payout_vector) == (-100,100)):
-			return i, network_vector, attack_vector
+			return i+1, network_vector, attack_vector, payout_vector
 		payout_vector = marketAdjust(payout_vector)
+
+	return i+1, network_vector, attack_vector, payout_vector
 
 ############################################
 ##             Input Parsing              ##
@@ -124,17 +126,26 @@ if __name__ == "__main__":
 	args = sys.argv
 	if len(args) > 1:
 		if args[1] == "-h":
-			print("\nThe following arguments are used to specify system parameters:\n\n\tpython main.py <Diagnostics -h -v> <Number of cryptocurrencies> <Total network hashing power TH/s> <Attacker hashing power TH/s>\n")
+			print("\nThe following arguments are used to specify system parameters:\n\n\tpython main.py <Diagnostics -h> <Number of cryptocurrencies> <Total network hashing power TH/s> <Attacker hashing power TH/s>\n")
 	if len(args) == 4 or len(args) == 5:
 		
 		# Valid input
 		if (args[-1].isnumeric() and args[-2].isnumeric() and args[-3].isnumeric()) or (isFloat(args[-1]) and isFloat(args[-2]) and isFloat(args[-3])):
+			total_iterations = 0
+
 			number_coins = int(args[-3])
 			hash_power_network = float(args[-2])
 			hash_power_attacker = float(args[-1])
+			max_iter = 50
 
 			# Run the simulation on the given parameters...
-			print(simulate(number_coins, hash_power_network, hash_power_attacker))
+			total_iterations, end_network_vector, end_attack_vector, end_payoff_vector = simulate(number_coins, hash_power_network, hash_power_attacker, max_iter)
+
+			# Print Results
+			print("Simulator Results:")
+			print("Total number of iterations (max: " + str(max_iter) + "): " + str(total_iterations))
+			print("Ending Network Vector" + str(end_network_vector))
+			print("Ending Attack Vector" + str(end_attack_vector))
 
 		# Invalid input
 		else:
