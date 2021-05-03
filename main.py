@@ -131,6 +131,8 @@ if __name__ == "__main__":
 		
 		# Valid input
 		if (args[-1].isnumeric() and args[-2].isnumeric() and args[-3].isnumeric()) or (isFloat(args[-1]) and isFloat(args[-2]) and isFloat(args[-3])):
+
+			print("Note: All payoff vectors are 1-payoff. This is a bug and needs to be fixed.")
 			total_iterations = 0
 
 			number_coins = int(args[-3])
